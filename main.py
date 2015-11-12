@@ -34,7 +34,7 @@ from flask import Flask
 
 app = Flask(__name__, template_folder=TEMPLATE_FOLDER, static_folder=STATIC_FOLDER, static_url_path=STATIC_URL)
 app.debug = DEBUG
-app.testing = DEBUG  # WARNING: this will disable login_manager decorators
+#app.testing = DEBUG  # WARNING: this will disable login_manager decorators
 
 
 # -------------------------------------------------------------
@@ -65,12 +65,16 @@ db.init_app(app)
 from flask_babel import Babel
 babel = Babel(app)
 
+# Authentication
 import auth.models
 auth.models.init_app(app)
 
 import auth.views
 app.register_blueprint(auth.views.app)
 
+# Doc service
+import doc_server.views
+app.register_blueprint(doc_server.views.app)
 
 # -------------------------------------------------------------
 # Development server setup
