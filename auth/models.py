@@ -129,9 +129,10 @@ def load_user(user_id):
 
 
 def send_mail(msg):
-    logging.debug("msg: %s" % msg)
     mail = current_app.extensions.get('mail')
-    mail.send(msg)
+    if mail:
+        logging.debug("msg: %s" % msg)
+        mail.send(msg)
 
 
 def init_app(app):
