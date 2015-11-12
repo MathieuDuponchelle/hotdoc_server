@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>ACE in Action</title>
+<style type="text/css" media="screen">
+
+#editor {
+	position: relative;
+	float: left;
+	width: 49%;
+	border-right: 1px solid black;
+}
+
+#previewer {
+	float: right;
+	position: relative;
+	width: 50%;
+	margin-top: -18px;
+}
+
+#publish_form {
+	position: absolute;
+	left: 80%;
+	top: 90%;
+}
+
+</style>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" type="text/css" />
+
+</head>
+<body>
+
+<div>
+
+	<h3>{{ symbol_id }}</h3>
+
+	<div id="editor" style="height: auto;"></div>
+
+	<div id="previewer">
+		<div class="refentry" id="inner-preview">
+		</div>
+	</div>
+
+</div>
+
+<form id="publish_form">
+	Message : <input type="text" name="Message" id="publish_message"><br>
+	<button type="button" id="publish_button">Publish!</button>
+</form>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.2/ace.js" type="text/javascript" charset="utf-8"></script>
+
+<script>
+
+var symbol_id = "{{ symbol_id }}";
+
+function refreshPreview() {
+	var raw_comment = ace.edit("editor").getValue();
+
+	$.ajax({
+		type: "PUT",
+		url: "http://127.0.0.1:5055/raw_comments/" + symbol_id,
+		data: {'raw_comment': raw_comment},
+	}).done (function (data) {
+		var previewer = $("#inner-preview");
+		previewer.html(data);
+	});
+}
+
+function publishChanges() {
+	var raw_comment = ace.edit("editor").getValue();
+	var message = $('#publish_message').val();
+
+	$.ajax({
+		type: "POST",
+		url: "http://127.0.0.1:5055/publish/" + symbol_id,
+		data: {'raw_comment': raw_comment,
+		       'message': message},
+		success: function(data, textStatus) {
+			console.log ("that's a success" + data);
+			window.location.href = data;
+		}
+	});
+}
+
+function debounce (func, threshold, execAsap) {
+ 
+    var timeout;
+ 
+    return function debounced () {
+        var obj = this, args = arguments;
+        function delayed () {
+            if (!execAsap)
+                func.apply(obj, args);
+            timeout = null; 
+        };
+ 
+        if (timeout)
+            clearTimeout(timeout);
+        else if (execAsap)
+            func.apply(obj, args);
+ 
+        timeout = setTimeout(delayed, threshold || 100); 
+    };
+ 
+}
+
+function onChange(e) {
+	refreshPreview();
+}
+
+$(document).ready(function(){
+
+	var refresher = debounce (onChange, 50);
+
+	$.get("http://127.0.0.1:5055/raw_comments/" + symbol_id, function(data, status){
+		var editor = ace.edit("editor");
+		editor.setTheme("ace/theme/chrome");
+		editor.getSession().setMode("ace/mode/javascript");
+		editor.setValue(data, -1);
+		editor.getSession().on('change', refresher);
+		refreshPreview();
+	});
+
+	});		
+
+	function resizeAce() {
+	  return $('#editor').height($(window).height() - 60);
+	};
+	//listen for changes
+	$(window).resize(resizeAce);
+	//set initially
+	resizeAce();
+
+	$('#publish_button').on('click', function() {
+		publishChanges();
+	});
+
+</script>
+</body>
+</html>

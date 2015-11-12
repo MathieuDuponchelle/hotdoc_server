@@ -33,3 +33,5 @@ Flask-SQLAlchemy>=1.0
 
 hotdoc>=0.5.9.1
 clang==3.5
+flask-cors
+pygit2==0.22.1

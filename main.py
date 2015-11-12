@@ -3,6 +3,7 @@
 import logging
 import os
 import sys
+from hotdoc.utils.utils import load_all_extensions
 
 # Setup simple logging fast, load a more complete logging setup later on
 # Log a message each time this module get loaded.
@@ -21,7 +22,6 @@ DEBUG = not PRODUCTION
 SRC_DIR = os.path.abspath(os.path.dirname(__file__))
 TEMPLATE_FOLDER = os.path.join(SRC_DIR, "templates")
 STATIC_FOLDER = os.path.join(SRC_DIR, "static")
-STATIC_URL = '/static/'
 
 try:
     import flask_social_blueprint
@@ -31,9 +31,12 @@ except ImportError:
     sys.path.append(os.path.join(os.path.dirname(os.path.dirname(SRC_DIR)), "src"))
 
 from flask import Flask
+from flask.ext.cors import CORS
 
-app = Flask(__name__, template_folder=TEMPLATE_FOLDER, static_folder=STATIC_FOLDER, static_url_path=STATIC_URL)
-app.debug = DEBUG
+app = Flask(__name__, template_folder=TEMPLATE_FOLDER,
+        static_folder=STATIC_FOLDER)
+CORS(app)
+#app.debug = DEBUG
 #app.testing = DEBUG  # WARNING: this will disable login_manager decorators
 
 
@@ -80,6 +83,16 @@ app.register_blueprint(doc_server.views.app)
 # Development server setup
 # -------------------------------------------------------------
 
+@app.route('/<path:path>')
+def static_proxy(path):
+    print "hello baby", path
+    try:
+        res = app.send_static_file(path)
+        print 'wtf', res
+    except Exception as e:
+        print "exception", e
+    return "lol"
+
 if app.debug:
     from werkzeug.debug import DebuggedApplication
     app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
@@ -96,4 +109,11 @@ if __name__ == "__main__":
     # for local vagrant based development
     logging.warn("We're binding to all your ip addresses. Don't forget to map `dev.example.com` to one of them")
     logging.warn("For more information see http://bit.ly/1xKtf8j")
+
+    # Setup our initial pages
+    load_all_extensions()
+    doc_server.views.do_format()
+
+    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
     app.run(host="0.0.0.0", port=5055)
+    doc_server.views.doc_tool.finalize()

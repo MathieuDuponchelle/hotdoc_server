@@ -11,5 +11,3 @@ app = Blueprint("auth", __name__, template_folder="templates")
 @login_required
 def profile():
     return render_template('User/profile.html')
-
-
