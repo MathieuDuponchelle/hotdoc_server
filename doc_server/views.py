@@ -13,12 +13,14 @@ from patcher import Patcher
 app = Blueprint("doc_server", __name__, template_folder="templates")
 
 class RawCommentAPI(MethodView):
+    @login_required
     def get(self, symbol_id):
         sym = doc_tool.get_symbol(symbol_id)
         if sym:
             return sym.comment.raw_comment
         return ''
 
+    @login_required
     def put(self, symbol_id):
         raw_comment = flask.request.form.get('raw_comment')
         sym = doc_tool.get_symbol(symbol_id)
@@ -37,6 +39,7 @@ class RawCommentAPI(MethodView):
 
 
 class PublishAPI(MethodView):
+    @login_required
     def post(self, symbol_id):
         raw_comment = flask.request.form.get('raw_comment')
         message = flask.request.form.get('message')
@@ -56,6 +59,7 @@ class PublishAPI(MethodView):
         return '/%s' % ref
 
 class FormattedCommentAPI(MethodView):
+    @login_required
     def get(self, symbol_id):
         return doc_tool.format_symbol(symbol_id)
 
@@ -63,6 +67,7 @@ class RenderTemplateView(View):
     def __init__(self, template_name):
         self.template_name = template_name
 
+    @login_required
     def dispatch_request(self, symbol_id):
         return render_template(self.template_name, symbol_id=symbol_id)
 
