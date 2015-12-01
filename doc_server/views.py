@@ -76,12 +76,12 @@ def do_format():
     global patcher
     global doc_tool
 
-    if not patcher:
-        patcher = Patcher(sys.argv[2])
     if not doc_tool:
         doc_tool = DocTool()
-    hd_args = pickle.load(open(os.path.join(sys.argv[1], 'args.p'), 'rb'))
-    doc_tool.setup(hd_args)
+    args = sys.argv[1:]
+    doc_tool.setup(args)
+    if not patcher:
+        patcher = Patcher(doc_tool.git_repo_path)
     doc_tool.output = 'static/html'
     doc_tool.format()
     # FIXME: let's be more clever at some point
