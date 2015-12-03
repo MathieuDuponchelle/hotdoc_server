@@ -112,7 +112,6 @@ def setup_doc_server(args):
     doc_server.views.do_format(args)
 
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-    app.run(host="0.0.0.0", port=5055)
     doc_server.views.doc_tool.finalize()
     pass
 
@@ -122,3 +121,4 @@ if __name__ == "__main__":
     # This should allow you to circumvent limits put on localhost/127.0.0.1 usage
     # Just map dev.example.com on 127.0.0.1 ip address.
     setup_doc_server(sys.argv[1:])
+    app.run(host="0.0.0.0", port=5055)
