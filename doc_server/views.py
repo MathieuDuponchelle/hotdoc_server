@@ -1,5 +1,5 @@
 import cPickle as pickle
-import os, sys
+import os
 
 import flask
 from flask import Blueprint, current_app, render_template
@@ -80,13 +80,12 @@ class RenderTemplateView(View):
         return render_template(self.template_name, symbol_id=symbol_id)
 
 
-def do_format():
+def do_format(args):
     global patcher
     global doc_tool
 
     if not doc_tool:
         doc_tool = DocTool()
-    args = sys.argv[1:]
     doc_tool.setup(args)
     if not patcher:
         patcher = Patcher(doc_tool.git_repo_path)

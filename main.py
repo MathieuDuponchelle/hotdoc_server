@@ -97,10 +97,7 @@ if app.debug:
     from werkzeug.debug import DebuggedApplication
     app.wsgi_app = DebuggedApplication(app.wsgi_app, True)
 
-if __name__ == "__main__":
-    # for convenience in setting up OAuth ids and secretes we use the example.com domain.
-    # This should allow you to circumvent limits put on localhost/127.0.0.1 usage
-    # Just map dev.example.com on 127.0.0.1 ip address.
+def setup_doc_server(args):
     logging.debug("PRODUCTION: %s" % PRODUCTION)
     logging.debug("app.debug: %s" % app.debug)
     logging.debug("app.testing: %s" % app.testing)
@@ -112,8 +109,16 @@ if __name__ == "__main__":
 
     # Setup our initial pages
     load_all_extensions()
-    doc_server.views.do_format()
+    doc_server.views.do_format(args)
 
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
     app.run(host="0.0.0.0", port=5055)
     doc_server.views.doc_tool.finalize()
+    pass
+
+
+if __name__ == "__main__":
+    # for convenience in setting up OAuth ids and secretes we use the example.com domain.
+    # This should allow you to circumvent limits put on localhost/127.0.0.1 usage
+    # Just map dev.example.com on 127.0.0.1 ip address.
+    setup_doc_server(sys.argv[1:])
