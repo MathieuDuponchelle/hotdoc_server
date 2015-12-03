@@ -10,6 +10,8 @@ from flask.views import MethodView, View
 
 from patcher import Patcher
 
+from datetime import datetime
+
 app = Blueprint("doc_server", __name__, template_folder="templates")
 
 class RawCommentAPI(MethodView):
@@ -41,21 +43,22 @@ class RawCommentAPI(MethodView):
 class PublishAPI(MethodView):
     @login_required
     def post(self, symbol_id):
+        n = datetime.now()
         raw_comment = flask.request.form.get('raw_comment')
         message = flask.request.form.get('message')
         if not message:
             message = 'Online edit'
 
-        raw_comment = '\n'.join(l.rstrip() for l in raw_comment.split('\n')) + '\n'
+        raw_comment = '\n'.join(l.rstrip() for l in raw_comment.split('\n'))
         sym = doc_tool.get_symbol(symbol_id)
         patcher.patch(sym.comment.filename,
                 sym.comment.lineno - 1,
-                sym.comment.endlineno, raw_comment)
+                sym.comment.endlineno, raw_comment + '\n')
 
         patcher.add(sym.comment.filename)
         patcher.commit('meh', 'meh@meh.net', message)
         ref = os.path.join(doc_tool.output, 'c', sym.link.ref)
-        do_format()
+        doc_tool.patch_page(sym, raw_comment)
         return '/%s' % ref
 
 class FormattedCommentAPI(MethodView):
