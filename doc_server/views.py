@@ -7,6 +7,7 @@ from flask_login import login_required
 from hotdoc.core.doc_tool import DocTool
 from hotdoc.utils.utils import load_all_extensions
 from flask.views import MethodView, View
+from flask_login import current_user
 
 from patcher import Patcher
 
@@ -56,7 +57,11 @@ class PublishAPI(MethodView):
                 sym.comment.endlineno, raw_comment + '\n')
 
         patcher.add(sym.comment.filename)
-        patcher.commit('meh', 'meh@meh.net', message)
+        name = "Online user"
+        if current_user.first_name and current_user.last_name:
+            name = '%s %s' % (current_user.first_name, current_user.last_name)
+
+        patcher.commit(name, current_user.email, message)
         ref = os.path.join(doc_tool.output, 'c', sym.link.ref)
         doc_tool.patch_page(sym, raw_comment)
         return '/%s' % ref
