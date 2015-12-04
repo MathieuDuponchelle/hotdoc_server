@@ -67,9 +67,10 @@ class PublishAPI(MethodView):
             name = '%s %s' % (current_user.first_name, current_user.last_name)
 
         patcher.commit(name, current_user.email, message)
-        ref = os.path.join(doc_tool.output, 'c', sym.link.ref)
+        ref = os.path.join(doc_tool.editing_server, 'static',
+                os.path.basename(doc_tool.output), 'c', sym.link.ref)
         doc_tool.patch_page(sym, raw_comment)
-        return '/%s' % ref
+        return ref
 
 class FormattedCommentAPI(MethodView):
     @login_required
