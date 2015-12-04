@@ -13,6 +13,11 @@ from patcher import Patcher
 
 from datetime import datetime
 
+# This causes errors on the atexit thread when run under mod_wsgi
+# Seemingly related : https://github.com/ipython/ipython/issues/680
+from IPython.core.history import HistoryManager
+HistoryManager.enabled = False
+
 app = Blueprint("doc_server", __name__, template_folder="templates")
 
 class RawCommentAPI(MethodView):
