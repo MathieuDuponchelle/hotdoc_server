@@ -11,6 +11,7 @@ STATIC_FOLDER = os.path.join(SRC_DIR, "static")
 import flask_social_blueprint
 
 from flask import Flask
+from flask import url_for, redirect
 from flask.ext.cors import CORS
 
 app = Flask(__name__, template_folder=TEMPLATE_FOLDER,
@@ -39,9 +40,6 @@ babel = Babel(app)
 import auth.models
 auth.models.init_app(app)
 
-import auth.views
-app.register_blueprint(auth.views.app)
-
 # Doc service
 import doc_server.views
 app.register_blueprint(doc_server.views.app)
@@ -55,7 +53,11 @@ def static_proxy(path):
     try:
         res = app.send_static_file(path)
     except Exception as e:
-        print "error while serving static", e
+        print "error while serving static at path", path, e
+
+@app.route('/')
+def home():
+    return redirect(url_for('static', filename='html/index.html'))
 
 def setup_doc_server(args):
     # Setup our initial pages
