@@ -19,6 +19,7 @@ FLASH_MESSAGES = True
 
 SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(SRC_DIR, "db.sqlite")
 SQLALCHEMY_ECHO = False  # Doubles log statements, investigate
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Flask-Login
 # https://flask-login.readthedocs.org/en/latest/#protecting-views
