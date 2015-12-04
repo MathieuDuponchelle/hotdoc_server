@@ -89,7 +89,11 @@ def do_format(args):
     doc_tool.setup(args)
     if not patcher:
         patcher = Patcher(doc_tool.git_repo_path)
-    doc_tool.output = 'static/html'
+
+    modpath = os.path.dirname(__file__)
+    print "modpath:", modpath
+    output = os.path.join(modpath, '..', 'static', 'html')
+    doc_tool.output = output
     doc_tool.format()
     # FIXME: let's be more clever at some point
     gi_extension = doc_tool.extensions['gi-extension']
