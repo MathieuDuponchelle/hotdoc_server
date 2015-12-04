@@ -2,7 +2,7 @@
 # Copyright 2013 Janusz Skonieczny
 import logging
 
-from main import app
+from hotdoc_server import app
 from flask_script import Manager, Command
 
 

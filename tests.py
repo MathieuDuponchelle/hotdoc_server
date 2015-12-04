@@ -6,7 +6,7 @@ import tempfile
 import unittest
 import flask_social_blueprint
 
-from main import app
+from hotdoc_server import app
 from website import database
 
 
