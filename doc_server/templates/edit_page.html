@@ -62,7 +62,7 @@ function refreshPreview() {
 
 	$.ajax({
 		type: "PUT",
-		url: "http://dev.example.com:5055/raw_comments/" + symbol_id,
+		url: "{{ address }}/raw_comments/" + symbol_id,
 		data: {'raw_comment': raw_comment},
 	}).done (function (data) {
 		var previewer = $("#inner-preview");
@@ -76,7 +76,7 @@ function publishChanges() {
 
 	$.ajax({
 		type: "POST",
-		url: "http://dev.example.com:5055/publish/" + symbol_id,
+		url: "{{ address }}/publish/" + symbol_id,
 		data: {'raw_comment': raw_comment,
 		       'message': message},
 		success: function(data, textStatus) {
@@ -116,7 +116,7 @@ $(document).ready(function(){
 
 	var refresher = debounce (onChange, 50);
 
-	$.get("http://dev.example.com:5055/raw_comments/" + symbol_id, function(data, status){
+	$.get("{{ address }}/raw_comments/" + symbol_id, function(data, status){
 		var editor = ace.edit("editor");
 		editor.setTheme("ace/theme/chrome");
 		editor.getSession().setMode("ace/mode/javascript");

@@ -16,6 +16,7 @@ from flask.ext.cors import CORS
 
 app = Flask(__name__, template_folder=TEMPLATE_FOLDER,
         static_folder=STATIC_FOLDER)
+app.debug = True
 CORS(app)
 
 # -------------------------------------------------------------
@@ -61,9 +62,7 @@ def home():
 
 def setup_doc_server(args):
     # Setup our initial pages
-    print "loading extensions"
     load_all_extensions()
-    print "formatting"
     doc_server.views.do_format(args)
 
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0

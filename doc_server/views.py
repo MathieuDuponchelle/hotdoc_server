@@ -82,7 +82,8 @@ class RenderTemplateView(View):
 
     @login_required
     def dispatch_request(self, symbol_id):
-        return render_template(self.template_name, symbol_id=symbol_id)
+        return render_template(self.template_name, symbol_id=symbol_id,
+                address=doc_tool.editing_server)
 
 
 def do_format(args):
@@ -96,7 +97,6 @@ def do_format(args):
         patcher = Patcher(doc_tool.git_repo_path)
 
     modpath = os.path.dirname(__file__)
-    print "modpath:", modpath
     output = os.path.join(modpath, '..', 'static', 'html')
     doc_tool.output = output
     doc_tool.format()
