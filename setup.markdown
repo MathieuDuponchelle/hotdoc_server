@@ -10,3 +10,5 @@ Get flask-social-blueprint here : https://github.com/MathieuDuponchelle/flask-so
 pending review of the remaining patch
 
 Don't forget to call manage.py initdb in hotdoc_server
+
+Had to install facebook from git too, as the last pip version is way too old
