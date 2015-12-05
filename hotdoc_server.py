@@ -49,13 +49,6 @@ app.register_blueprint(doc_server.views.app)
 # Development server setup
 # -------------------------------------------------------------
 
-@app.route('/<path:path>')
-def static_proxy(path):
-    try:
-        res = app.send_static_file(path)
-    except Exception as e:
-        print "error while serving static at path", path, e
-
 @app.route('/')
 def home():
     return redirect(url_for('static', filename='html/index.html'))
