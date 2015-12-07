@@ -2,12 +2,13 @@ import cPickle as pickle
 import os
 
 import flask
-from flask import Blueprint, current_app, render_template
+from flask import Blueprint, current_app, render_template, make_response
 from flask_login import login_required
 from hotdoc.core.doc_tool import DocTool
 from hotdoc.utils.utils import load_all_extensions
 from flask.views import MethodView, View
 from flask_login import current_user
+from flask_restful import abort
 
 from patcher import Patcher
 
@@ -26,17 +27,25 @@ class RawCommentAPI(MethodView):
         sym = doc_tool.get_symbol(symbol_id)
         if sym:
             return sym.comment.raw_comment
-        return ''
+
+        abort(make_response('No such symbol %s' % symbol_id, 404))
 
     @login_required
     def put(self, symbol_id):
         raw_comment = flask.request.form.get('raw_comment')
         sym = doc_tool.get_symbol(symbol_id)
+
         if not sym:
-            return ''
+            abort(make_response('No such symbol %s' % symbol_id, 404))
 
         comment = doc_tool.raw_comment_parser.parse_comment(raw_comment,
                 'nowhere', 0, 0)
+
+        if not comment:
+            abort(make_response('Invalid comment', 400))
+
+        if comment.name != sym.unique_name:
+            abort(make_response('Can not change the name of a comment', 400)) 
 
         old_comment = sym.comment
         sym.comment = comment
@@ -57,6 +66,10 @@ class PublishAPI(MethodView):
 
         raw_comment = '\n'.join(l.rstrip() for l in raw_comment.split('\n'))
         sym = doc_tool.get_symbol(symbol_id)
+
+        if not doc_tool.patch_page(sym, raw_comment):
+            abort(make_response("Couldn't patch documentation", 400))
+
         patcher.patch(sym.comment.filename,
                 sym.comment.lineno - 1,
                 sym.comment.endlineno, raw_comment + '\n')
@@ -69,7 +82,6 @@ class PublishAPI(MethodView):
         patcher.commit(name, current_user.email, message)
         ref = os.path.join(doc_tool.editing_server, 'static',
                 os.path.basename(doc_tool.output), 'c', sym.link.ref)
-        doc_tool.patch_page(sym, raw_comment)
         return ref
 
 class FormattedCommentAPI(MethodView):

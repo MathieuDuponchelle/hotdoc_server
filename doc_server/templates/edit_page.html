@@ -47,18 +47,20 @@
 
 <form id="publish_form">
 	Message : <input type="text" name="Message" id="publish_message"><br>
-	<button type="button" id="publish_button">Publish!</button>
+	<button type="button" class="btn btn-default" id="publish_button">Publish!</button>
 </form>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.2/ace.js" type="text/javascript" charset="utf-8"></script>
+<script src="{{ url_for('static', filename='html/assets/js/frontend.js') }}"></script>
 
 <script>
 
 var symbol_id = "{{ symbol_id }}";
 
 function refreshPreview() {
-	var raw_comment = ace.edit("editor").getValue();
+	var editor = ace.edit("editor");
+	var raw_comment = editor.getValue();
 
 	$.ajax({
 		type: "PUT",
@@ -67,11 +69,24 @@ function refreshPreview() {
 	}).done (function (data) {
 		var previewer = $("#inner-preview");
 		previewer.html(data);
+		editor.getSession().setAnnotations([]);
+		if ($("#publish_message").val() != "") {
+			$("#publish_button").prop("disabled", false);
+		}
+	}).fail(function(jqXHR, textStatus) {
+		editor.getSession().setAnnotations([{
+		  row: editor.getCursorPosition().row,
+		  column: 0,
+		  text: jqXHR.responseText,
+		  type: "error"
+		}]);
+		$("#publish_button").prop("disabled", true);
 	});
 }
 
 function publishChanges() {
-	var raw_comment = ace.edit("editor").getValue();
+	var editor = ace.edit("editor");
+	var raw_comment = editor.getValue();
 	var message = $('#publish_message').val();
 
 	$.ajax({
@@ -80,10 +95,19 @@ function publishChanges() {
 		data: {'raw_comment': raw_comment,
 		       'message': message},
 		success: function(data, textStatus) {
-			console.log ("that's a success" + data);
 			window.location.href = data;
 		}
-	});
+		}).fail(function(jqXHR, textStatus) {
+			/* This shouldn't be possible, as the publish button
+			   should be disabled, but still */
+			editor.getSession().setAnnotations([{
+			  row: 0,
+			  column: 0,
+			  text: jqXHR.responseText,
+			  type: "error"
+			}]);
+			$("#publish_button").prop("disabled", true);
+		});
 }
 
 function debounce (func, threshold, execAsap) {
@@ -115,6 +139,7 @@ function onChange(e) {
 $(document).ready(function(){
 
 	var refresher = debounce (onChange, 50);
+	ace.edit("editor").getSession().setOption("useWorker", false)
 
 	$.get("{{ address }}/raw_comments/" + symbol_id, function(data, status){
 		var editor = ace.edit("editor");
@@ -125,8 +150,6 @@ $(document).ready(function(){
 		refreshPreview();
 	});
 
-	});		
-
 	function resizeAce() {
 	  return $('#editor').height($(window).height() - 60);
 	};
@@ -135,10 +158,24 @@ $(document).ready(function(){
 	//set initially
 	resizeAce();
 
+	$('#publish_message').val("");
+	$("#publish_button").prop("disabled", true);
+
+	$('#publish_message').on('keyup', function() {
+		var errors = ace.edit("editor").getSession().getAnnotations();
+		var valid_comment = (errors.length == 0);
+
+		if ($('#publish_message').val() == "") {
+			$("#publish_button").prop("disabled", true);
+		} else if (valid_comment) {
+			$("#publish_button").prop("disabled", false);
+		}
+	});
+
 	$('#publish_button').on('click', function() {
 		publishChanges();
 	});
-
+});	
 </script>
 </body>
 </html>

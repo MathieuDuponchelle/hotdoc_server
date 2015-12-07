@@ -35,3 +35,4 @@ hotdoc>=0.5.9.1
 clang==3.5
 flask-cors
 pygit2==0.22.1
+Flask-RESTful==0.3.4
