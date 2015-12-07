@@ -67,6 +67,12 @@ class PublishAPI(MethodView):
         raw_comment = '\n'.join(l.rstrip() for l in raw_comment.split('\n'))
         sym = doc_tool.get_symbol(symbol_id)
 
+        if not sym:
+            abort(make_response('No such symbol %s' % symbol_id, 404))
+
+        if raw_comment == sym.comment.raw_comment:
+            abort(make_response('You did not make any changes', 400))
+
         if not doc_tool.patch_page(sym, raw_comment):
             abort(make_response("Couldn't patch documentation", 400))
 
