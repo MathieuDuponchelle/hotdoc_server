@@ -88,6 +88,7 @@ function publishChanges() {
 	var editor = ace.edit("editor");
 	var raw_comment = editor.getValue();
 	var message = $('#publish_message').val();
+	var res = false;
 
 	$.ajax({
 		type: "POST",
@@ -96,7 +97,9 @@ function publishChanges() {
 		       'message': message},
 		success: function(data, textStatus) {
 			window.location.href = data;
-		}
+			res = true;
+		},
+		async: false
 		}).fail(function(jqXHR, textStatus) {
 			/* This shouldn't be possible, as the publish button
 			   should be disabled, but still */
@@ -108,6 +111,7 @@ function publishChanges() {
 			}]);
 			$("#publish_button").prop("disabled", true);
 		});
+	return res;
 }
 
 function debounce (func, threshold, execAsap) {
@@ -137,7 +141,8 @@ function onChange(e) {
 }
 
 $(document).ready(function(){
-
+	$.my_context = new Object();
+	var dirty = false;
 	var refresher = debounce (onChange, 50);
 	ace.edit("editor").getSession().setOption("useWorker", false)
 
@@ -146,7 +151,10 @@ $(document).ready(function(){
 		editor.setTheme("ace/theme/chrome");
 		editor.getSession().setMode("ace/mode/javascript");
 		editor.setValue(data, -1);
-		editor.getSession().on('change', refresher);
+		editor.getSession().on('change', function() {
+			dirty = true;
+			refresher();
+		});
 		refreshPreview();
 	});
 
@@ -173,7 +181,17 @@ $(document).ready(function(){
 	});
 
 	$('#publish_button').on('click', function() {
-		publishChanges();
+		var was_dirty = dirty;
+		dirty = false;
+		if (publishChanges() == false) {
+			dirty = was_dirty;
+		}
+	});
+
+	$(window).bind('beforeunload', function(){
+		if (dirty == true) {
+			return 'You have some unpublished changes. Are you sure you want to leave?';
+		}
 	});
 });	
 </script>
