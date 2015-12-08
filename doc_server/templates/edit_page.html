@@ -180,18 +180,27 @@ $(document).ready(function(){
 		}
 	});
 
-	$('#publish_button').on('click', function() {
+	function do_publish() {
 		var was_dirty = dirty;
 		dirty = false;
 		if (publishChanges() == false) {
 			dirty = was_dirty;
 		}
+	}
+
+	$('#publish_button').on('click', function() {
+		do_publish();
 	});
 
 	$(window).bind('beforeunload', function(){
 		if (dirty == true) {
 			return 'You have some unpublished changes. Are you sure you want to leave?';
 		}
+	});
+
+	$("#publish_form").submit(function() {
+		do_publish();
+    		return false;
 	});
 });	
 </script>
