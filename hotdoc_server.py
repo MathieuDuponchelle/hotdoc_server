@@ -14,7 +14,13 @@ from flask import Flask
 from flask import url_for, redirect
 from flask.ext.cors import CORS
 
-app = Flask(__name__, template_folder=TEMPLATE_FOLDER,
+class MyFlask(Flask):
+    def get_send_file_max_age(self, name):
+        if name.endswith('.html'):
+            return 0
+        return Flask.get_send_file_max_age(self, name)
+
+app = MyFlask(__name__, template_folder=TEMPLATE_FOLDER,
         static_folder=STATIC_FOLDER)
 app.debug = True
 CORS(app)
@@ -58,7 +64,6 @@ def setup_doc_server(args):
     load_all_extensions()
     doc_server.views.do_format(args)
 
-    app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
     doc_server.views.doc_tool.finalize()
 
 if __name__ == "__main__":

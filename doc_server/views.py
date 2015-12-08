@@ -19,7 +19,13 @@ from datetime import datetime
 from IPython.core.history import HistoryManager
 HistoryManager.enabled = False
 
-app = Blueprint("doc_server", __name__, template_folder="templates")
+class MyBlueprint(Blueprint):
+    def get_send_file_max_age(self, name):
+        if name.endswith('.html'):
+            return 0
+        return Blueprint.get_send_file_max_age(self, name)
+
+app = MyBlueprint("doc_server", __name__, template_folder="templates")
 
 class RawCommentAPI(MethodView):
     @login_required
