@@ -70,7 +70,7 @@ class PublishAPI(MethodView):
         if not message:
             message = 'Online edit'
 
-        raw_comment = '\n'.join(l.rstrip() for l in raw_comment.split('\n'))
+        raw_comment = '\n'.join(l.rstrip() for l in raw_comment.strip().split('\n'))
         sym = doc_tool.get_symbol(symbol_id)
 
         if not sym:
