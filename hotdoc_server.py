@@ -2,7 +2,6 @@
 # Created 2014 by Janusz Skonieczny
 import os
 import sys
-from hotdoc.utils.utils import load_all_extensions
 
 SRC_DIR = os.path.abspath(os.path.dirname(__file__))
 TEMPLATE_FOLDER = os.path.join(SRC_DIR, "templates")
@@ -61,7 +60,6 @@ def home():
 
 def setup_doc_server(args):
     # Setup our initial pages
-    load_all_extensions()
     doc_server.views.do_format(args)
 
     doc_server.views.doc_tool.finalize()

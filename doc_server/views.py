@@ -5,7 +5,6 @@ import flask
 from flask import Blueprint, current_app, render_template, make_response
 from flask_login import login_required
 from hotdoc.core.doc_tool import DocTool
-from hotdoc.utils.utils import load_all_extensions
 from flask.views import MethodView, View
 from flask_login import current_user
 from flask_restful import abort
