@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <title>Editing {{ symbol_id }}</title>
+<base href="{{ base_url }}">
 <style type="text/css" media="screen">
 
 #editor {
@@ -64,7 +65,7 @@ function refreshPreview() {
 
 	$.ajax({
 		type: "PUT",
-		url: "{{ address }}/raw_comments/" + symbol_id,
+		url: "{{ address }}/raw_comments/" + symbol_id + "?language={{ language }}",
 		data: {'raw_comment': raw_comment},
 	}).done (function (data) {
 		var previewer = $("#inner-preview");
@@ -92,7 +93,7 @@ function publishChanges() {
 
 	$.ajax({
 		type: "POST",
-		url: "{{ address }}/publish/" + symbol_id,
+		url: "{{ address }}/publish/" + symbol_id + "?language={{ language }}",
 		data: {'raw_comment': raw_comment,
 		       'message': message},
 		success: function(data, textStatus) {

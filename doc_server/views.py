@@ -40,6 +40,11 @@ class RawCommentAPI(MethodView):
         raw_comment = flask.request.form.get('raw_comment')
         sym = doc_tool.get_symbol(symbol_id)
 
+        language = flask.request.args.get('language')
+        if language is not None:
+            gi_extension = doc_tool.extensions['gi-extension']
+            gi_extension.setup_language(language)
+
         if not sym:
             abort(make_response('No such symbol %s' % symbol_id, 404))
 
@@ -92,8 +97,9 @@ class PublishAPI(MethodView):
             name = '%s %s' % (current_user.first_name, current_user.last_name)
 
         patcher.commit(name, current_user.email, message)
+        language = flask.request.args.get('language', '')
         ref = os.path.join(doc_tool.editing_server, 'static',
-                os.path.basename(doc_tool.output), 'c', sym.link.ref)
+                os.path.basename(doc_tool.output), language, sym.link.ref)
         return ref
 
 class FormattedCommentAPI(MethodView):
@@ -107,9 +113,14 @@ class RenderTemplateView(View):
 
     @login_required
     def dispatch_request(self, symbol_id):
-        return render_template(self.template_name, symbol_id=symbol_id,
-                address=doc_tool.editing_server)
+        base_url = '..'
+        language = flask.request.args.get("language", '')
 
+        # Need a terminating slash
+        base_url = os.path.join('/', 'static', 'html', language, '')
+        return render_template(self.template_name, symbol_id=symbol_id,
+                address=doc_tool.editing_server, base_url=base_url,
+                language=language)
 
 def do_format(args):
     global patcher
@@ -125,10 +136,6 @@ def do_format(args):
     output = os.path.join(modpath, '..', 'static', 'html')
     doc_tool.output = output
     doc_tool.format()
-    # FIXME: let's be more clever at some point
-    gi_extension = doc_tool.extensions['gi-extension']
-    gi_extension.setup_language('c')
-
 
 patcher = None
 doc_tool = None
