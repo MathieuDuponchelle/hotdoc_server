@@ -71,6 +71,7 @@ class PublishAPI(MethodView):
 
         raw_comment = '\n'.join(l.rstrip() for l in raw_comment.strip().split('\n'))
         sym = doc_tool.get_symbol(symbol_id)
+        old_comment = sym.comment
 
         if not sym:
             abort(make_response('No such symbol %s' % symbol_id, 404))
@@ -81,9 +82,9 @@ class PublishAPI(MethodView):
         if not doc_tool.patch_page(sym, raw_comment):
             abort(make_response("Couldn't patch documentation", 400))
 
-        patcher.patch(sym.comment.filename,
-                sym.comment.lineno - 1,
-                sym.comment.endlineno, raw_comment + '\n')
+        patcher.patch(old_comment.filename,
+                old_comment.lineno - 1,
+                old_comment.endlineno, raw_comment + '\n')
 
         patcher.add(sym.comment.filename)
         name = "Online user"
