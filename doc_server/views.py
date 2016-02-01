@@ -29,7 +29,7 @@ app = MyBlueprint("doc_server", __name__, template_folder="templates")
 class RawCommentAPI(MethodView):
     @login_required
     def get(self, symbol_id):
-        sym = doc_tool.get_symbol(symbol_id)
+        sym = doc_tool.doc_database.get_symbol(symbol_id)
         if sym:
             return sym.comment.raw_comment
 
@@ -38,7 +38,7 @@ class RawCommentAPI(MethodView):
     @login_required
     def put(self, symbol_id):
         raw_comment = flask.request.form.get('raw_comment')
-        sym = doc_tool.get_symbol(symbol_id)
+        sym = doc_tool.doc_database.get_symbol(symbol_id)
 
         language = flask.request.args.get('language')
         if language is not None:
@@ -75,7 +75,7 @@ class PublishAPI(MethodView):
             message = 'Online edit'
 
         raw_comment = '\n'.join(l.rstrip() for l in raw_comment.strip().split('\n'))
-        sym = doc_tool.get_symbol(symbol_id)
+        sym = doc_tool.doc_database.get_symbol(symbol_id)
         old_comment = sym.comment
 
         if not sym:
