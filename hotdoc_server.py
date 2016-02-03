@@ -62,7 +62,7 @@ def setup_doc_server(args):
     # Setup our initial pages
     doc_server.views.do_format(args)
 
-    doc_server.views.doc_tool.finalize()
+    doc_server.views.doc_repo.finalize()
 
 if __name__ == "__main__":
     # for convenience in setting up OAuth ids and secretes we use the example.com domain.
